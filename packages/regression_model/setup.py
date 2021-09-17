@@ -9,12 +9,12 @@ from setuptools import find_packages, setup
 
 
 # Package meta-data.
-NAME = 'regression_model'
-DESCRIPTION = 'Regression model for using in the Train In Data online course "Deployment of Machine Learning Models".'
-URL = 'https://github.com/trainindata/deploying-machine-learning-models'
-EMAIL = 'christopher.samiullah@protonmail.com'
-AUTHOR = 'ChristopherGS'
-REQUIRES_PYTHON = '>=3.6.0'
+NAME = 'personalizedcancerdiagnosis'
+DESCRIPTION = 'Logistic Regression model API for prediction of type of cancer mutation based on evidences from text-based clinical literature.'
+URL = 'https://github.com/Debadri3/Personalized-Cancer-Diagnosis'
+EMAIL = 'debadri3@gmail.com'
+AUTHOR = 'Debadri Sengupta'
+REQUIRES_PYTHON = '>=3.7.4'
 
 
 # Packages that are required for this module to be executed

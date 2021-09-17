@@ -1,5 +1,5 @@
 import pandas as pd
-import joblib
+import pickle
 from sklearn.pipeline import Pipeline
 
 from regression_model.config import config
@@ -30,7 +30,7 @@ def save_pipeline(*, pipeline_to_persist) -> None:
     save_path = config.TRAINED_MODEL_DIR / save_file_name
 
     remove_old_pipelines(files_to_keep=[save_file_name])
-    joblib.dump(pipeline_to_persist, save_path)
+    pickle.dump(pipeline_to_persist, open(save_path, 'wb'))
     _logger.info(f"saved pipeline: {save_file_name}")
 
 
@@ -38,8 +38,13 @@ def load_pipeline(*, file_name: str) -> Pipeline:
     """Load a persisted pipeline."""
 
     file_path = config.TRAINED_MODEL_DIR / file_name
-    trained_model = joblib.load(filename=file_path)
+    trained_model = pickle.load(open(file_path, 'rb'))
     return trained_model
+
+def load_vectorizer(*, file_name:str):
+    """Load a vectorizer"""
+    vectorizer=pickle.load(open(file_name,'rb'))
+    return vectorizer
 
 
 def remove_old_pipelines(*, files_to_keep: t.List[str]) -> None:
@@ -52,7 +57,7 @@ def remove_old_pipelines(*, files_to_keep: t.List[str]) -> None:
     However, we do also include the immediate previous
     pipeline version for differential testing purposes.
     """
-    do_not_delete = files_to_keep + ['__init__.py']
+    do_not_delete = files_to_keep + ['__init__.py']+[config.ONE_HOT_GENE_SAVE_FILE, config.ONE_HOT_VARIATION_SAVE_FILE, config.ONE_HOT_TEXT_SAVE_FILE]
     for model_file in config.TRAINED_MODEL_DIR.iterdir():
         if model_file.name not in do_not_delete:
             model_file.unlink()

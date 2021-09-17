@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-from regression_model import pipeline
+from regression_model import vect_pipeline
 from regression_model.processing.data_management import load_dataset, save_pipeline
 from regression_model.config import config
 from regression_model import __version__ as _version
@@ -24,10 +24,9 @@ def run_training() -> None:
     )  # we are setting the seed here
 
 
-    pipeline.mutation_pipe.fit(X_train, np.array(list(y_train)))
+    vect_pipeline.mutation_pipe.fit(X_train, np.array(list(y_train)))
 
-    _logger.info(f"saving model version: {_version}")
-    save_pipeline(pipeline_to_persist=pipeline.mutation_pipe)
+    
 
 
 if __name__ == "__main__":

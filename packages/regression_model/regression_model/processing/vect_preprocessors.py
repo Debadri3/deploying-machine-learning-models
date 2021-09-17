@@ -10,10 +10,10 @@ from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 from sklearn.preprocessing import normalize
 from scipy.sparse import hstack
+from sklearn.preprocessing import StandardScaler
 
 from regression_model.config import config
 from regression_model import __version__ as _version
-from regression_model.processing.data_management import load_vectorizer
 
 
 class CategoricalImputer(BaseEstimator, TransformerMixin):
@@ -109,7 +109,7 @@ class CategoricalProcessor(BaseEstimator, TransformerMixin):
     
     
 class CategoricalEncoder(BaseEstimator,TransformerMixin):
-    """One-hot-encoding all features. Followed by standard scaling all columns"""
+    """One-hot-encoding all features"""
     def __init__(self,variables=None,training=True) -> None:
         if not isinstance(variables, list):
             self.variables = [variables]
@@ -122,30 +122,32 @@ class CategoricalEncoder(BaseEstimator,TransformerMixin):
         return self
     
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
-           """Apply the transforms to the dataframe."""
+            """Apply the transforms to the dataframe."""
         
         
         
-           X=X.copy()
             
             
         
-        
-           _gene_vectorizer=load_vectorizer(file_name=config.ONE_HOT_GENE_SAVE_FILE)
-           _var_vectorizer=load_vectorizer(file_name=config.ONE_HOT_VARIATION_SAVE_FILE)
-           _text_vectorizer=load_vectorizer(file_name=config.ONE_HOT_TEXT_SAVE_FILE)
-           _standard_scaler=load_vectorizer(file_name=config.SCALER_SAVE_FILE)
+            gene_vectorizer=CountVectorizer()
+            gene_feature_onehotCoding=gene_vectorizer.fit_transform(X['Gene']) 
+            pickle.dump(gene_vectorizer,open(config.ONE_HOT_GENE_SAVE_FILE,'wb'))
             
-           gene_feature_onehotCoding = _gene_vectorizer.transform(X['Gene'])
-           variation_feature_onehotCoding = _var_vectorizer.transform(X['Variation'])
-           text_feature_onehotCoding = _text_vectorizer.transform(X['TEXT'])
-          
-    
-           test_gene_var_onehotCoding = hstack((gene_feature_onehotCoding,variation_feature_onehotCoding))
-           test_x_onehotCoding = hstack((test_gene_var_onehotCoding, text_feature_onehotCoding)).tocsr()
-           
-           test_x_onehotCoding=_standard_scaler.transform(test_x_onehotCoding)
+            variation_vectorizer=CountVectorizer()
+            variation_feature_onehotCoding=variation_vectorizer.fit_transform(X['Variation'])
+            pickle.dump(variation_vectorizer,open(config.ONE_HOT_VARIATION_SAVE_FILE,'wb'))
             
-           return test_x_onehotCoding
-        
-        
+            text_vectorizer=CountVectorizer(min_df=3)
+            text_feature_onehotCoding=text_vectorizer.fit_transform(X['TEXT'])
+            pickle.dump(text_vectorizer,open(config.ONE_HOT_TEXT_SAVE_FILE,'wb'))
+            
+            train_gene_var_onehotCoding = hstack((gene_feature_onehotCoding,variation_feature_onehotCoding))
+            train_x_onehotCoding = hstack((train_gene_var_onehotCoding, text_feature_onehotCoding)).tocsr()
+            
+            sc = StandardScaler(with_mean=False)
+            train_x_onehotCoding = sc.fit_transform(train_x_onehotCoding) 
+            pickle.dump(sc,open(config.SCALER_SAVE_FILE, 'wb'))
+            
+            
+            return train_x_onehotCoding
+       
